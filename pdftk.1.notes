@@ -1,0 +1,7 @@
+see: man 7 man
+test on-screen: groff -Tlatin1 -man pdftk.1 | less
+or: man ./pdftk.1
+create text version: groff -Tascii -man pdftk.1 | col -b > pdftk.1.txt
+create html version: groff -Thtml -man pdftk.1 > pdftk.1.html
+for Windows compatibility:
+todos pdftk.1.txt

@@ -1,0 +1,58 @@
+# -*- Mode: Makefile -*-
+# Makefile.Base
+# Copyright 2003, 2004, 2006, 2010 Sid Steward, Updated by Andre Gompel
+# This is part of pdftk
+#
+# Visit: www.pdftk.com for pdftk information and articles
+# Permalink: http://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/
+#
+# Please email Sid Steward with questions or bug reports.
+# Include "pdftk" in the subject line to ensure successful delivery:
+# sid.steward at pdflabs dot com
+#
+# Don't call this makefile directly; it is included by other,
+# platform-specific makefiles, e.g.: Makefile.Debian
+#
+
+export JAVALIBPATH= ../java
+
+JAVALIB= $(JAVALIBPATH)/java_lib.o
+
+ifdef USE_LOCAL_LIBGCJ
+# passed on to next makefile
+export GCJ_LOCAL_LIB= gcj_local_lib.o
+export GCJ_LOCAL_LIB_FULL= $(JAVALIBPATH)/gcj_local_lib.o
+endif
+
+# this must already be set according to your platform Makefile;
+# we're just appending to it, here
+#
+CPPFLAGS+= -DPDFTK_VER=\"1.44\"
+
+all : javalib pdftk
+
+javalib :
+	$(MAKE) -f Makefile -iC $(JAVALIBPATH) all
+
+attachments.o : attachments.cc attachments.h pdftk.h $(JAVALIB)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(JAVALIBPATH) attachments.cc -c
+
+report.o : report.cc report.h pdftk.h $(JAVALIB)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(JAVALIBPATH) report.cc -c
+
+pdftk.o : pdftk.cc pdftk.h attachments.h report.h $(JAVALIB) $(GCJ_LOCAL_LIB_FULL)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(JAVALIBPATH) pdftk.cc -c
+
+pdftk : pdftk.o attachments.o report.o $(JAVALIB) $(GCJ_LOCAL_LIB_FULL)
+	$(CXX) $(CXXFLAGS) attachments.o report.o pdftk.o $(JAVALIB) $(GCJ_LOCAL_LIB_FULL) $(LDLIBS) -o pdftk
+
+install:
+	/usr/bin/install pdftk /usr/local/bin 
+
+uninstall:
+	$(RM) $(RMFLAGS) /usr/local/bin/pdftk
+
+clean:
+	$(RM) $(RMFLAGS) *.o
+	$(RM) $(RMFLAGS) pdftk
+	$(MAKE) -f Makefile -C $(JAVALIBPATH) clean
