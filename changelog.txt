@@ -1,3 +1,91 @@
+    * 2.02 - July 24, 2013
+          o Added drop_xmp output option for removing the document XMP metadata
+            stream from a PDF.
+          o Added dump_data output of custom page data embedded by STAMPtk
+            tool. See the embed option in STAMPtk for more information.
+          o Improved PDF bookmark merging logic so it can handle more input
+            cases.
+          o Fixed a password bug where some 'upper-ASCII' characters weren't
+            being mapped to the correct code points.
+          o Fixed a 40-bit decryption bug introduced in version 2.00.
+          o Fixed a bug in the bookmark merging logic that caused bookmarks to
+            be omitted from the merged PDF.
+          o Added a test to ensure that encryption passwords use permitted
+            characters only. (Decryption attempts still allow a larger set of
+            input characters.)
+          o Rewrote the wide-to-utf8 code for Windows to make it more rigorous.
+          o Organized our calls of JvInitClass() in main().
+          o Added descriptions to some exception reports.
+          o Reviewed some code from pdftk.cc, PdfReader.java, PdfWriter.java
+            and friends.
+    * 2.01 - June 5, 2013
+          o Fixed an uncompress bug introduced in 2.00 that corrupted some
+            image streams.
+          o Updated the Windows pdftk.exe compiler settings to remedy an
+            elusive NullPointerException reported in the field. This problem
+            first appeared in version 2.00.
+    * 2.00 - May 22, 2013
+          o Added AES decryption of input PDFs. The 'owner' password is still
+            required when decrypting any PDF.
+          o Added merging of bookmarks/outlines when merging full PDFs.
+          o Added new rotate operation, which is a convenient way of rotating
+            select pages of a single PDF.
+          o Added new dump_data_annots operation. Currently it reports only
+            link annotation information.
+          o Added new need_appearances output option. Use this when filling a
+            form with non-ASCII text to ensure the best presentation in Adobe
+            Reader/Acrobat. It won't work when combined with the flatten
+            option.
+          o Improved the compress option so that output PDFs are more compact
+            and efficient.
+          o Added page media information to dump_data output: page rotation,
+            page media bounds and page crop bounds.
+          o Improved the performance of dump_data so it works better with very
+            large PDFs.
+          o Improved the memory management in the Windows binary. This fixes
+            the rare "Too many heap sections" error.
+          o Fixed a bug where form fields with multiple values were not being
+            properly reported by dump_data_fields.
+          o Fixed a_burst_bug that was corrupting the output PDF pages.
+          o Fixed an_input_bug to allow interactive prompting of both the user
+            and owner passwords.
+          o Fixed a burst bug so that doc_data.txt is now output to the same
+            directory as the PDF's pages when an output directory is given.
+          o Fixed a bug where indirect references to the PDF ID in the trailer
+            would cause a crash.
+          o Added a test to fill_form so it checks that an input PDF is a form
+            before trying to fill it with data.
+          o Added a return value of 3 for warnings 'PDF information not added'
+            or 'PDF form not filled.'
+          o Improved the error message for cat page range errors.
+          o Fixed the error report when an input page number is out of range.
+          o Fixed a burst bug where document metadata wasn't being copied
+            properly to the output PDFs.
+          o Updated the Bouncy Castle library to 1.48.
+          o When using the cat operation, the output PDF version number is now
+            set to the maximum PDF version of all of the input PDFs. If any of
+            the input PDFs have PDF extension levels, then the greatest
+            extension level is also copied to the output PDF.
+    * 1.45 - December 6, 2012
+          o You can now add or change a PDF's bookmarks using update_info.
+          o Added record delimiters to dump_data output to help make parsing
+            more reliable.
+          o The changes to dump_data output (described above) are also now
+            required for the input to update_info.
+          o You can now use multi-character input handles. Prior versions were
+            limited to a single character, imposing an arbitrary limitation on
+            the number of input PDFs when using handles. Handles still must be
+            all upper-case ASCII.
+          o Added means of referring to PDF pages in reverse order. By
+            prefixing a page number with an r, it counts from the end of the
+            document. For example, r1 is the last page, r2 is the next-to-last
+            page, etc.
+          o Changed the syntax for page rotation. Instead of N, S, E, W, L, R
+            and D, now use: north, south, east, west, left, right and down.
+          o Fixed a problem reading input PDF filenames that have non-ASCII
+            characters on Windows 7.
+          o Fixed a stream parsing issue with troublesome PDFs that don't
+            strictly follow the PDF specification.
     * 1.44 - October 28, 2010
           o Added new feature for collating PDF page scans: shuffle. Please see
             the man page for usage details.
