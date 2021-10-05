@@ -1,0 +1,88 @@
+# -*- Mode: Makefile -*-
+#
+# Copyright (c) 2004-2013 Steward and Lee, LLC
+# This is part of pdftk.
+#
+# Visit: www.pdftk.com for pdftk information and articles
+# Permalink: http://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/
+#
+# Please email Sid Steward with questions or bug reports.
+# Include "pdftk" in the subject line to ensure successful delivery:
+# sid.steward at pdflabs dot com
+
+# Brief Instructions
+#
+#   Compile:             make -f Makefile.Windows
+#   Install (as root):   make -f Makefile.Windows install
+#   Uninstall:           make -f Makefile.Windows uninstall
+#   Clean:               make -f Makefile.Windows clean
+# 	 								
+
+export USE_LIBGCJ_SUPPLEMENT= 1
+
+# tools
+# need direct path to libgcj for gcjh (starting in gcj 4.1.2 per AurÃ©lien GÃRÃME)
+TOOLPATH= /c/mingw-3.4.5/bin/
+export VERSUFF=
+export CPP= $(TOOLPATH)cpp$(VERSUFF)
+export CXX= $(TOOLPATH)g++$(VERSUFF)
+export GCJ= $(TOOLPATH)gcj$(VERSUFF)
+export GCJH= $(TOOLPATH)gcjh$(VERSUFF)
+export GJAR= $(TOOLPATH)jar$(VERSUFF)
+
+#ifdef USE_LIBGCJ_SUPPLEMENT
+# using supplemented libgcj-3.4.5.jar; see ../java/ for supplement source
+#export LIBGCJ= /c/mingw-3.4.5/share/java/libgcj-3.4.5-supp-1.jar
+#else
+export LIBGCJ= /c/mingw-3.4.5/share/java/libgcj-3.4.5.jar
+#endif
+
+export AR= ar
+export RM= rm
+export ARFLAGS= rs
+export RMFLAGS= -vf
+
+# pdftk compiler flags; 0x2f is a forward slash; 0x5c is a backslash
+# if you want pdftk to ask before overwriting a file, set
+# ASK_ABOUT_WARNINGS to true; otherwise: false; override this default
+# with the dont_ask or do_ask command-line options
+#
+# drop CXXFLAG -O3 due to template inlining causing:
+# "error: mixing C++ and Java catches in a single translation unit" per Andrew Haley;
+# fix added for gcc-4.3; this problem might be fixed in 4.4
+#
+# GCJFLAG -O3 causes pdftk to segfault (during a cat operation) when compiled on sarge using gcc 3.4.4
+# per Johann Felix Soden:
+# In gcc 4.3 "-O3" gives an error. This is fixed in PR C++/39380 which is at least in debian's gcc 4.4.1-4
+#
+# GCJFLAG -fsource=1.3 identifies the version of the java source
+#
+# when building/using a shared itext library:
+#   CXXFLAGS: -fpic (or-fPIC)
+#   GCJFLAGS: -Wl,-Bsymbolic -fpic (or -fPIC) -Wl,-rpath,/usr/lib/gcj
+# stock pdftk links statically against its own, modified itext library
+#
+# -findirect-dispatch
+# introduced in gcj 4:
+# "Using that option causes GCJ to generate native code for classes and methods that follow the precise same binary compatibility rules as described in the Java Language Specification."
+# http://lwn.net/Articles/130796/
+# omitted because it caused linking errors using gcc 4.4; it also seems to make a larger binary
+#
+# -Wl,--as-needed
+# see: http://www.gentoo.org/proj/en/qa/asneeded.xml
+# only effects libraries following option on the command line
+#
+
+export CPPFLAGS= -DPATH_DELIM=0x5c -DASK_ABOUT_WARNINGS=false \
+	-D_UNICODE -DUNICODE -D__USE_MINGW_ACCESS
+
+export CXXFLAGS= -Wall -Wextra -O2 -fdollars-in-identifiers -mthreads
+
+export GCJFLAGS= -O2
+
+# added -nostdlib to track dependencies
+# added -lshell32 for wide-char handling in pdftk.cc
+#export LDLIBS= -lgcj -lws2_32 -liconv
+export LDLIBS= c:/mingw-3.4.5/lib/crt2.o -nostdlib -lgcj -lws2_32 -liconv -luser32 -ladvapi32 -lmingw32 -lstdc++ -lgcc -lmoldname -lmingwex -lkernel32 -lmsvcrt -lshell32
+
+include Makefile.Base

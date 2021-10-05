@@ -1,6 +1,6 @@
 # -*- Mode: Makefile -*-
 # Makefile.Debian
-# Copyright 2004, 2010 Sid Steward
+# Copyright (c) 2004, 2010 Steward and Lee, LLC
 # This is part of pdftk.
 #
 # Visit: www.pdftk.com for pdftk information and articles
@@ -17,14 +17,6 @@
 #   Uninstall:           make -f Makefile.Debian uninstall
 #   Clean:               make -f Makefile.Debian clean
 # 	 								
-
-# this tries to compensate for objects missing from older versions of libgcj
-# it replaces them with local implementations
-#
-# set to 1 for gcc 3.4 and other, older versions of gcc (e.g., mingw 3.4.5)
-# comment out for gcc 4.4 and other, newer versions of gcc
-#
-#export USE_LOCAL_LIBGCJ= 1
 
 # tools
 # need direct path to libgcj for gcjh (starting in gcj 4.1.2 per Aurélien GÉRÔME)

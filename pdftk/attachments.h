@@ -1,7 +1,7 @@
 /* -*- Mode: C++; tab-width: 2; c-basic-offset: 2 -*- */
 /*
-	pdftk, the PDF Toolkit
-	Copyright (c) 2003, 2004, 2010 Sid Steward
+	PDFtk, the PDF Toolkit
+	Copyright (c) 2010 Steward and Lee, LLC
 
 
 	This program is free software; you can redistribute it and/or modify

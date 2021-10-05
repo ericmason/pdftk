@@ -1,7 +1,7 @@
 /* -*- Mode: C++; tab-width: 2; c-basic-offset: 2 -*- */
 /*
-	pdftk, the PDF Toolkit
-	Copyright (c) 2003, 2004, 2010 Sid Steward
+	PDFtk, the PDF Toolkit
+	Copyright (c) 2003, 2004, 2010 Steward and Lee, LLC
 
 
 	This program is free software; you can redistribute it and/or modify
@@ -54,31 +54,30 @@
 
 #include <java/util/ArrayList.h>
 
-#include "com/lowagie/text/Document.h"
-#include "com/lowagie/text/Rectangle.h"
-#include "com/lowagie/text/pdf/PdfName.h"
-#include "com/lowagie/text/pdf/PdfString.h"
-#include "com/lowagie/text/pdf/PdfNumber.h"
-#include "com/lowagie/text/pdf/PdfArray.h"
-#include "com/lowagie/text/pdf/PdfDictionary.h"
-#include "com/lowagie/text/pdf/PdfOutline.h"
-#include "com/lowagie/text/pdf/PdfCopy.h"
-#include "com/lowagie/text/pdf/PdfReader.h"
-#include "com/lowagie/text/pdf/PdfImportedPage.h"
-#include "com/lowagie/text/pdf/PdfWriter.h"
-#include "com/lowagie/text/pdf/PdfStamperImp.h"
-#include "com/lowagie/text/pdf/PdfEncryptor.h"
-#include "com/lowagie/text/pdf/PdfNameTree.h"
-#include "com/lowagie/text/pdf/FdfReader.h"
-#include "com/lowagie/text/pdf/AcroFields.h"
-#include "com/lowagie/text/pdf/PdfIndirectReference.h"
-#include "com/lowagie/text/pdf/PdfIndirectObject.h"
-#include "com/lowagie/text/pdf/PdfFileSpecification.h"
+#include "pdftk/com/lowagie/text/Document.h"
+#include "pdftk/com/lowagie/text/Rectangle.h"
+#include "pdftk/com/lowagie/text/pdf/PdfName.h"
+#include "pdftk/com/lowagie/text/pdf/PdfString.h"
+#include "pdftk/com/lowagie/text/pdf/PdfNumber.h"
+#include "pdftk/com/lowagie/text/pdf/PdfArray.h"
+#include "pdftk/com/lowagie/text/pdf/PdfDictionary.h"
+#include "pdftk/com/lowagie/text/pdf/PdfOutline.h"
+#include "pdftk/com/lowagie/text/pdf/PdfCopy.h"
+#include "pdftk/com/lowagie/text/pdf/PdfReader.h"
+#include "pdftk/com/lowagie/text/pdf/PdfImportedPage.h"
+#include "pdftk/com/lowagie/text/pdf/PdfWriter.h"
+#include "pdftk/com/lowagie/text/pdf/PdfStamperImp.h"
+#include "pdftk/com/lowagie/text/pdf/PdfNameTree.h"
+#include "pdftk/com/lowagie/text/pdf/FdfReader.h"
+#include "pdftk/com/lowagie/text/pdf/AcroFields.h"
+#include "pdftk/com/lowagie/text/pdf/PdfIndirectReference.h"
+#include "pdftk/com/lowagie/text/pdf/PdfIndirectObject.h"
+#include "pdftk/com/lowagie/text/pdf/PdfFileSpecification.h"
 
-#include "com/lowagie/text/pdf/PdfAnnotation.h"
-#include "com/lowagie/text/pdf/PRStream.h"
-#include "com/lowagie/text/pdf/BaseFont.h"
-#include "com/lowagie/text/pdf/PdfEncodings.h"
+#include "pdftk/com/lowagie/text/pdf/PdfAnnotation.h"
+#include "pdftk/com/lowagie/text/pdf/PRStream.h"
+#include "pdftk/com/lowagie/text/pdf/BaseFont.h"
+#include "pdftk/com/lowagie/text/pdf/PdfEncodings.h"
 
 #include <gcj/array.h>
 
@@ -91,8 +90,8 @@ namespace java {
 }
 
 namespace itext {
-	using namespace com::lowagie::text;
-	using namespace com::lowagie::text::pdf;
+	using namespace pdftk::com::lowagie::text;
+	using namespace pdftk::com::lowagie::text::pdf;
 }
 
 #include "pdftk.h"
@@ -402,6 +401,7 @@ unpack_file( itext::PdfReader* input_reader_p,
 						// patch tweaked by Sid Steward:
 						// toString() doesn't ensure conversion from internal encoding (e.g., Y+diaeresis)
 						jstring fn_str = fn_p->toUnicodeString();
+						//jstring fn_str= JvNewStringUTF( "hello" ); // debug
 						int fn_buff_len = JvGetStringUTFLength( fn_str );
 						char* fn_buff= (char*)malloc( fn_buff_len* sizeof(char) ); // fn_buff not a C string, not NULL terminated
 						JvGetStringUTFRegion( fn_str, 0, fn_str->length(), fn_buff );

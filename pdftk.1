@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH PDFTK 1 "October 28, 2010"
+.TH PDFTK 1 "July 24, 2013"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -35,9 +35,11 @@ pdftk \- A handy tool for manipulating PDF
 .br
      [ \fBuser_pw\fR \fI<user password | PROMPT>\fR ]
 .br
-     [ \fBflatten\fR ] [ \fBcompress\fR | \fBuncompress\fR ]
+     [ \fBflatten\fR ] [ \fBneed_appearances\fR ] 
 .br
-     [ \fBkeep_first_id\fR | \fBkeep_final_id\fR ] [ \fBdrop_xfa\fR ]
+     [ \fBcompress\fR | \fBuncompress\fR ]
+.br
+     [ \fBkeep_first_id\fR | \fBkeep_final_id\fR ] [ \fBdrop_xfa\fR ] [ \fBdrop_xmp\fR ]
 .br
      [ \fBverbose\fR ] [ \fBdont_ask\fR | \fBdo_ask\fR ]
 .br
@@ -45,7 +47,7 @@ Where:
 .br
      \fI<operation>\fR may be empty, or:
 .br
-     [ \fBcat\fR | \fBshuffle\fR | \fBburst\fR |
+     [ \fBcat\fR | \fBshuffle\fR | \fBburst\fR | \fBrotate\fR |
 .br
        \fBgenerate_fdf\fR | \fBfill_form\fR |
 .br
@@ -56,6 +58,8 @@ Where:
        \fBdump_data\fR | \fBdump_data_utf8\fR |
 .br
        \fBdump_data_fields\fR | \fBdump_data_fields_utf8\fR |
+.br
+       \fBdump_data_annots\fR |
 .br
        \fBupdate_info\fR | \fBupdate_info_utf8\fR |
 .br
@@ -84,9 +88,9 @@ If PDF is electronic paper, then pdftk is an electronic staple-remover, hole-pun
 .br
 * Apply a Background Watermark or a Foreground Stamp
 .br
-* Report PDF Metrics such as Metadata and Bookmarks
+* Report PDF Metrics, Bookmarks and Metadata
 .br
-* Update PDF Metadata
+* Add/Update PDF Bookmarks or Metadata
 .br
 * Attach Files to PDF Pages or the PDF Document
 .br
@@ -101,20 +105,20 @@ If PDF is electronic paper, then pdftk is an electronic staple-remover, hole-pun
 A summary of options is included below.
 .TP
 \fB\-\-help\fR, \fB\-h\fR
-Show summary of options.
+Show this summary of options.
 .TP
 .B <input PDF files | - | PROMPT>
 A list of the input PDF files. If you plan to combine these PDFs (without
 using handles) then list files in the order you want them combined.  Use \fB-\fR 
 to pass a single PDF into pdftk via stdin.
 Input files can be associated with handles, where a
-handle is a single, upper-case letter:
+handle is one or more upper-case letters:
 
 \fI<input PDF handle>\fR\fB=\fR\fI<input PDF filename>\fR
 
 Handles are often omitted.  They are useful when specifying PDF passwords or page ranges, later.
 
-For example: A=input1.pdf B=input2.pdf
+For example: A=input1.pdf QT=input2.pdf M=input3.pdf
 .TP
 .B [input_pw <input PDF owner passwords | PROMPT>]
 Input PDF owner passwords, if necessary, are associated with files
@@ -134,29 +138,29 @@ When running in \fBdo_ask\fR mode, pdftk will prompt you for a password
 if the supplied password is incorrect or none was given.
 .TP
 .B [<operation> <operation arguments>]
+Available operations are: \fBcat\fR, \fBshuffle\fR, \fBburst\fR, \fBrotate\fR,
+\fBgenerate_fdf\fR, \fBfill_form\fR, \fBbackground\fR, \fBmultibackground\fR, 
+\fBstamp\fR, \fBmultistamp\fR, \fBdump_data\fR, \fBdump_data_utf8\fR, 
+\fBdump_data_fields\fR, \fBdump_data_fields_utf8\fR, \fBdump_data_annots\fR, \fBupdate_info\fR, 
+\fBupdate_info_utf8\fR, \fBattach_files\fR, \fBunpack_files\fR. Some operations
+takes additional arguments, described below.
+
 If this optional argument is omitted, then pdftk runs in 'filter' mode.
 Filter mode takes only one PDF input and creates a new PDF after
 applying all of the output options, like encryption and compression.
-
-Available operations are: \fBcat\fR, \fBshuffle\fR, \fBburst\fR, 
-\fBgenerate_fdf\fR, \fBfill_form\fR, \fBbackground\fR, \fBmultibackground\fR, 
-\fBstamp\fR, \fBmultistamp\fR, \fBdump_data\fR, \fBdump_data_utf8\fR, 
-\fBdump_data_fields\fR, \fBdump_data_fields_utf8\fR, \fBupdate_info\fR, 
-\fBupdate_info_utf8\fR, \fBattach_files\fR, \fBunpack_files\fR. Some operations
-takes additional arguments, described below.
 .RS 3
 .TP
 .B cat [<page ranges>]
-Catenates pages from input PDFs to create a new PDF.
-Page order in the new PDF is specified by the order of the given page ranges.
-Page ranges are described like this:
+Assembles (catenates) pages from input PDFs to create a new PDF. Use \fBcat\fR to merge PDF pages or to split PDF pages from documents. You can also use it to rotate PDF pages. Page order in the new PDF is specified by the order of the given page ranges. Page ranges are described like this:
 
 \fI<input PDF handle>\fR[\fI<begin page number>\fR[\fB-\fR\fI<end page number>\fR[\fI<qualifier>\fR]]][\fI<page rotation>\fR]
 
 Where the handle identifies one of the input PDF files, and
 the beginning and ending page numbers are one-based references
-to pages in the PDF file, and
-the qualifier can be \fBeven\fR or \fBodd\fR, and the page rotation can be \fBN\fR, \fBS\fR, \fBE\fR, \fBW\fR, \fBL\fR, \fBR\fR, or \fBD\fR.
+to pages in the PDF file.
+The qualifier can be \fBeven\fR or \fBodd\fR, and the page rotation can be \fBnorth\fR, \fBsouth\fR, \fBeast\fR, \fBwest\fR, \fBleft\fR, \fBright\fR, or \fBdown\fR.
+
+If a PDF handle is given but no pages are specified, then the entire PDF is used. If no pages are specified for any of the input PDFs, then the input PDFs' bookmarks are also merged and included in the output.
 
 If the handle is omitted from the page range, then the pages are taken from the first input PDF.
 
@@ -164,7 +168,7 @@ The \fBeven\fR qualifier causes pdftk to use only the even-numbered PDF pages, s
 
 The \fBodd\fR qualifier works similarly to the \fBeven\fR.
 
-The page rotation setting can cause pdftk to rotate pages and documents.  Each option sets the page rotation as follows (in degrees): \fBN\fR: 0, \fBE\fR: 90, \fBS\fR: 180, \fBW\fR: 270, \fBL\fR: -90, \fBR\fR: +90, \fBD\fR: +180. \fBL\fR, \fBR\fR, and \fBD\fR make relative adjustments to a page's rotation.
+The page rotation setting can cause pdftk to rotate pages and documents.  Each option sets the page rotation as follows (in degrees): \fBnorth\fR: 0, \fBeast\fR: 90, \fBsouth\fR: 180, \fBwest\fR: 270, \fBleft\fR: -90, \fBright\fR: +90, \fBdown\fR: +180. \fBleft\fR, \fBright\fR, and \fBdown\fR make relative adjustments to a page's rotation.
 
 If no arguments are passed to cat, then pdftk combines all input PDFs in the
 order they were given to create the output.
@@ -178,14 +182,16 @@ order they were given to create the output.
 * Reference a single page by omitting the ending page number.
 .br
 * The handle may be used alone to represent the entire PDF document, e.g., B1-end is the same as B.
-
-.B Page Range Examples w/o Handles:
 .br
-\fB1-endE\fR - rotate entire document 90 degrees
+* You can reference page numbers in reverse order by prefixing them with the letter \fBr\fR. For example, page r1 is the last page of the document, r2 is the next-to-last page of the document, and rend is the first page of the document. You can use this prefix in ranges, too, for example r3-r1 is the last three pages of a PDF.
+
+.B Page Range Examples without Handles:
+.br
+\fB1-endeast\fR - rotate entire document 90 degrees
 .br
 \fB5 11 20\fR - take single pages from input PDF
 .br
-\fB5-25oddW\fR - take odd pages in range, rotate 90 degrees
+\fB5-25oddwest\fR - take odd pages in range, rotate 90 degrees
 .br
 \fB6-1\fR - reverse pages in range from input PDF
 
@@ -201,23 +207,23 @@ Say \fBA=in1.pdf B=in2.pdf\fR, then:
 .br
 \fBA1-21 Beven A72\fR - assemble pages from both in1.pdf and in2.pdf
 .br
-\fBAW\fR - rotate entire in1.pdf document 90 degrees
+\fBAwest\fR - rotate entire in1.pdf document 90 degrees
 .br
 \fBB\fR - use all of in2.pdf
 .br
-\fBA2-30evenL\fR - take the even pages from the range, remove 90 degrees from each page's rotation
+\fBA2-30evenleft\fR - take the even pages from the range, remove 90 degrees from each page's rotation
 .br
 \fBA A\fR - catenate in1.pdf with in1.pdf
 .br
-\fBAevenW AoddE\fR - apply rotations to even pages, odd pages from in1.pdf
+\fBAevenwest Aoddeast\fR - apply rotations to even pages, odd pages from in1.pdf
 .br
-\fBAW BW BD\fR - catenate rotated documents
+\fBAwest Bwest Bdown\fR - catenate rotated documents
 .TP
 .B shuffle [<page ranges>]
 Collates pages from input PDFs to create a new PDF.  Works like the \fBcat\fR operation except that it takes one page at a time from each page range to assemble the output PDF.  If one range runs out of pages, it continues with the remaining ranges.  Ranges can use all of the features described above for \fBcat\fR, like reverse page ranges, multiple ranges from a single PDF, and page rotation.  This feature was designed to help collate PDF pages after scanning paper documents.
 .TP
 .B burst
-Splits a single, input PDF document into individual pages. Also creates a
+Splits a single input PDF document into individual pages. Also creates a
 report named \fBdoc_data.txt\fR which is the same as the output from \fBdump_data\fR.
 If the \fBoutput\fR section is omitted, then PDF pages are named: pg_%04d.pdf, 
 e.g.: pg_0001.pdf, pg_0002.pdf, etc.  To name these pages yourself, supply a
@@ -227,8 +233,19 @@ Encryption can be applied to the output by appending output options such as \fBo
 
 pdftk in.pdf burst owner_pw foopass
 .TP
+.B rotate [<page ranges>]
+Takes a single input PDF and rotates just the specified pages.  All other pages remain unchanged.  The page order remains unchaged.  Specify the pages to rotate using the same notation as you would with \fBcat\fR, except you omit the pages that you aren't rotating:
+
+[\fI<begin page number>\fR[\fB-\fR\fI<end page number>\fR[\fI<qualifier>\fR]]][\fI<page rotation>\fR]
+
+The qualifier can be \fBeven\fR or \fBodd\fR, and the page rotation can be \fBnorth\fR, \fBsouth\fR, \fBeast\fR, \fBwest\fR, \fBleft\fR, \fBright\fR, or \fBdown\fR.
+
+Each option sets the page rotation as follows (in degrees): \fBnorth\fR: 0, \fBeast\fR: 90, \fBsouth\fR: 180, \fBwest\fR: 270, \fBleft\fR: -90, \fBright\fR: +90, \fBdown\fR: +180. \fBleft\fR, \fBright\fR, and \fBdown\fR make relative adjustments to a page's rotation.
+
+The given order of the pages doesn't change the page order in the output.
+.TP
 .B generate_fdf
-Reads a single, input PDF file and generates an FDF file suitable for \fBfill_form\fR
+Reads a single input PDF file and generates an FDF file suitable for \fBfill_form\fR
 out of it to the given output
 filename or (if no output is given) to stdout.  Does not create a new PDF.
 .TP
@@ -238,23 +255,15 @@ after \fBfill_form\fR, or use \fB-\fR to pass the data via stdin, like so:
 
 pdftk form.pdf fill_form data.fdf output form.filled.pdf
 
-After filling a form, the form fields remain interactive unless you also use the \fBflatten\fR
-output option. \fBflatten\fR merges the form fields with the PDF pages. You can use \fBflatten\fR 
-alone, too, but only on a single PDF:
-
-pdftk form.pdf fill_form data.fdf output out.pdf flatten
-
-or:
-
-pdftk form.filled.pdf output out.pdf flatten
-
 If the input FDF file includes Rich Text formatted data in addition to plain text, then the
 Rich Text data is packed into the form fields \fIas well as\fR the plain text.  Pdftk also sets a flag
-that cues Acrobat/Reader to generate new field appearances based on the Rich Text data.  That way,
-when the user opens the PDF, the viewer will create the Rich Text fields on the spot.  If the
+that cues Reader/Acrobat to generate new field appearances based on the Rich Text data.  So
+when the user opens the PDF, the viewer will create the Rich Text appearance on the spot.  If the
 user's PDF viewer does not support Rich Text, then the user will see the plain text data instead.
 If you flatten this form before Acrobat has a chance to create (and save) new field appearances,
 then the plain text field data is what you'll see.
+
+Also see the \fBflatten\fR and \fBneed_appearances\fR options.
 .TP
 .B background <background PDF filename | - | PROMPT>
 Applies a PDF watermark to the background of a single input PDF.  Pass the background PDF's
@@ -278,28 +287,38 @@ This behaves just like the \fBbackground\fR operation except it overlays the sta
 Same as the \fBstamp\fR operation, but applies each page of the background PDF to the corresponding page of the input PDF.  If the input PDF has more pages than the stamp PDF, then the final stamp page is repeated across these remaining pages in the input PDF.
 .TP
 .B dump_data
-Reads a single, input PDF file and reports various statistics, 
-metadata, bookmarks (a/k/a outlines), and page labels to the given output
-filename or (if no output is given) to stdout.  Non-ASCII characters are encoded
-as XML numerical entities.  Does not create a new PDF.
+Reads a single input PDF file and reports its metadata, bookmarks (a/k/a outlines), page metrics (media, rotation and labels), data embedded by STAMPtk (see STAMPtk's \fBembed\fR option) and other data to the given output filename or (if no output is given) to stdout.  Non-ASCII characters are encoded as XML numerical entities.  Does not create a new PDF.
 .TP
 .B dump_data_utf8
 Same as \fBdump_data\fR excepct that the output is encoded as UTF-8.
 .TP
 .B dump_data_fields
-Reads a single, input PDF file and reports form field statistics to the given output
+Reads a single input PDF file and reports form field statistics to the given output
 filename or (if no output is given) to stdout. Non-ASCII characters are encoded
 as XML numerical entities. Does not create a new PDF.
 .TP
 .B dump_data_fields_utf8
 Same as \fBdump_data_fields\fR excepct that the output is encoded as UTF-8.
 .TP
+.B dump_data_annots
+\fBThis operation currently reports only link annotations.\fR
+Reads a single input PDF file and reports annotation information to the given output
+filename or (if no output is given) to stdout. Non-ASCII characters are encoded
+as XML numerical entities. Does not create a new PDF.
+.TP
 .B update_info <info data filename | - | PROMPT>
-Changes the metadata stored in a single PDF's Info dictionary to match
+Changes the bookmarks and metadata in a single PDF's Info dictionary to match
 the input data file. The input data file uses the same syntax as the
 output from \fBdump_data\fR. Non-ASCII characters should be encoded as XML
-numerical entities. This does not change the metadata stored
-in the PDF's XMP stream, if it has one. For example:
+numerical entities.
+
+This operation does not change the metadata stored
+in the PDF's XMP stream, if it has one. (For this reason you should include
+a \fBModDate\fR entry in your updated info with a current date/timestamp, format:
+\fBD:YYYYMMDDHHmmSS\fR, e.g. D:201307241346 -- omitted data after YYYY revert 
+to default values.)
+
+For example:
 
 pdftk in.pdf update_info in.info output out.pdf
 .TP
@@ -390,6 +409,9 @@ applying the \fBuncompress\fR filter. Use the \fBcompress\fR filter to restore c
 Use this option to merge an input PDF's interactive form fields (and their data) with
 the PDF's pages. Only one input PDF may be given. Sometimes used with the \fBfill_form\fR operation.
 .TP
+.B [need_appearances]
+Sets a flag that cues Reader/Acrobat to generate new field appearances based on the form field values.  Use this when filling a form with non-ASCII text to ensure the best presentation in Adobe Reader or Acrobat.  It won't work when combined with the \fBflatten\fR option.
+.TP
 .B [keep_first_id | keep_final_id]
 When combining pages from multiple PDFs, use one of these options to copy the document ID from either the first or final input document into the new output PDF. Otherwise pdftk creates a new document ID for the output PDF. When no operation is given, pdftk always uses the ID from the (single) input PDF.
 .TP
@@ -397,6 +419,11 @@ When combining pages from multiple PDFs, use one of these options to copy the do
 If your input PDF is a form created using Acrobat 7 or Adobe Designer, then it probably has XFA data.  Filling such a form using pdftk yields a PDF with data that fails to display in Acrobat 7 (and 6?).  The workaround solution is to remove the form's XFA data, either before you fill the form using pdftk or at the time you fill the form. Using this option causes pdftk to omit the XFA data from the output PDF form.
 
 This option is only useful when running pdftk on a single input PDF.  When assembling a PDF from multiple inputs using pdftk, any XFA data in the input is automatically omitted.
+.TP
+.B [drop_xmp]
+Many PDFs store document metadata using both an Info dictionary (old school) and an XMP stream (new school).  Pdftk's \fBupdate_info\fR operation can update the Info dictionary, but not the XMP stream.  The proper remedy for this is to include a \%\fBModDate\fR entry in your updated info with a current date/timestamp. The date/timestamp format is: \fBD:YYYYMMDDHHmmSS\fR, e.g. D:201307241346 -- omitted data after YYYY revert to default values. This newer ModDate should cue PDF viewers that the Info metadata is more current than the XMP data.
+
+Alternatively, you might prefer to remove the XMP stream from the PDF altogether -- that's what this option does.  Note that objects inside the PDF might have their own, separate XMP metadata streams, and that \fBdrop_xmp\fR does not remove those.  It only removes the PDF's document-level XMP stream.
 .TP
 .B [verbose]
 By default, pdftk runs quietly. Append \fBverbose\fR to the end and it 
@@ -440,7 +467,7 @@ or (using wildcards):
 .br
 pdftk *.pdf cat output combined.pdf
 .TP
-.B Remove 'page 13' from in1.pdf to create out1.pdf
+.B Remove page 13 from in1.pdf to create out1.pdf
 pdftk in.pdf cat 1-12 14-end output out1.pdf
 .br
 or:
@@ -469,10 +496,10 @@ pdftk in.pdf burst owner_pw foopass allow DegradedPrinting
 pdftk in.pdf dump_data output report.txt
 .TP
 .B Rotate the first PDF page to 90 degrees clockwise
-pdftk in.pdf cat 1E 2-end output out.pdf
+pdftk in.pdf cat 1east 2-end output out.pdf
 .TP
 .B Rotate an entire PDF document to 180 degrees
-pdftk in.pdf cat 1-endS output out.pdf
+pdftk in.pdf cat 1-endsouth output out.pdf
 .SH NOTES
 The pdftk home page permalink is:
 .br

@@ -1,7 +1,7 @@
 /* -*- Mode: C++; tab-width: 2; c-basic-offset: 2 -*- */
 /*
-	pdftk, the PDF Toolkit
-	Copyright (c) 2003, 2004, 2010 Sid Steward
+	PDFtk, the PDF Toolkit
+	Copyright (c) 2003-2013 Steward and Lee, LLC
 
 
 	This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,6 @@ class TK_Session {
 public:
 
   typedef unsigned long PageNumber;
-
 	typedef enum { NORTH= 0, EAST= 90, SOUTH= 180, WEST= 270 } PageRotate; // DF rotation
 	typedef bool PageRotateAbsolute; // DF absolute / relative rotation
 
@@ -85,6 +84,7 @@ public:
 		dump_data_utf8_k,
 		dump_data_fields_k,
 		dump_data_fields_utf8_k,
+		dump_data_annots_k,
 		generate_fdf_k,
 		unpack_files_k, // unpack files from input; no PDF output
 		//
@@ -102,6 +102,7 @@ public:
 		multibackground_k, // feature added by Bernhard R. Link <brlink@debian.org>, Johann Felix Soden <johfel@gmx.de>
 		stamp_k,
 		multistamp_k, // feature added by Bernhard R. Link <brlink@debian.org>, Johann Felix Soden <johfel@gmx.de>
+		rotate_k, // rotate given pages as directed
 
 		// optional attach_file argument
 		attach_file_to_page_k,
@@ -140,14 +141,25 @@ public:
 
 		// forms
 		flatten_k,
+		need_appearances_k,
 		drop_xfa_k,
+		drop_xmp_k,
 		keep_first_id_k,
 		keep_final_id_k,
 
 		// pdftk options
 		verbose_k,
 		dont_ask_k,
-		do_ask_k
+		do_ask_k,
+
+		// page rotation
+		rot_north_k,
+		rot_east_k,
+		rot_south_k,
+		rot_west_k,
+		rot_left_k,
+		rot_right_k,
+		rot_upside_down_k
   };
   static keyword is_keyword( char* ss, int* keyword_len_p );
 
@@ -180,9 +192,12 @@ public:
 	bool m_output_uncompress_b;
 	bool m_output_compress_b;
 	bool m_output_flatten_b;
+	bool m_output_need_appearances_b;
 	bool m_output_drop_xfa_b;
+	bool m_output_drop_xmp_b;
 	bool m_output_keep_first_id_b;
 	bool m_output_keep_final_id_b;
+	bool m_cat_full_pdfs_b; // we are merging entire docs, not select pages
 
 	enum encryption_strength {
 		none_enc= 0,
